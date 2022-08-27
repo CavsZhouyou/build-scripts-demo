@@ -1,16 +1,1 @@
-(() => {
-  var r = {
-      700: (r) => {
-        r.exports = () => {
-          console.log('hello world!');
-        };
-      },
-    },
-    o = {};
-  !(function e(t) {
-    var s = o[t];
-    if (void 0 !== s) return s.exports;
-    var l = (o[t] = { exports: {} });
-    return r[t](l, l.exports, e), l.exports;
-  })(700)();
-})();
+(()=>{var o={957:o=>{o.exports=function(){console.log("hello world!")}}},r={};!function e(t){var n=r[t];if(void 0!==n)return n.exports;var s=r[t]={exports:{}};return o[t](s,s.exports,e),s.exports}(957)()})();

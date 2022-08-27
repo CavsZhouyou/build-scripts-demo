@@ -21,7 +21,6 @@ const build = require('../src/commands/build');
 
   // 如果无子命令，展示 help 信息
   const subCmd = program.args[0];
-  console.log('program.args: ', program.args);
   if (!subCmd) {
     program.help();
   }

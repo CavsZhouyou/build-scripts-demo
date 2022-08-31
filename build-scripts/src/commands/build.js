@@ -30,7 +30,7 @@ module.exports = async () => {
 
   // 执行 webpack 编译
   compiler.run((err, stats) => {
-    console.log('stats: ', stats?.toString());
+    console.log(stats?.toString());
     compiler.close((closeErr) => {});
   });
 };

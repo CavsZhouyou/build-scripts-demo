@@ -3,10 +3,11 @@ const webpack = require('webpack');
 
 module.exports = async () => {
   const rootDir = process.cwd();
+  const userConfig = require(path.resolve(rootDir, './build.json'));
 
   // 定义 webpack 配置
   const config = {
-    entry: path.resolve(rootDir, './src/index.ts'),
+    entry: path.resolve(rootDir, userConfig.entry),
     module: {
       rules: [
         {

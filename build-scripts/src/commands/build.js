@@ -11,7 +11,7 @@ module.exports = async () => {
       rules: [
         {
           test: /\.ts?$/,
-          use: 'ts-loader',
+          use: require.resolve('ts-loader'),
           exclude: /node_modules/,
         },
       ],
@@ -30,6 +30,7 @@ module.exports = async () => {
 
   // 执行 webpack 编译
   compiler.run((err, stats) => {
+    console.log('stats: ', stats?.toString());
     compiler.close((closeErr) => {});
   });
 };

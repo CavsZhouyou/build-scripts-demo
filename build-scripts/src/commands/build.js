@@ -3,6 +3,8 @@ const webpack = require('webpack');
 
 module.exports = async () => {
   const rootDir = process.cwd();
+
+  // 获取用户自定义配置
   const userConfig = require(path.resolve(rootDir, './build.json'));
 
   // 定义 webpack 配置

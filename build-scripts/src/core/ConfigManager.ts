@@ -1,4 +1,5 @@
 import _ = require('lodash');
+import path = require('path');
 import assert = require('assert');
 
 // 配置类型定义
@@ -25,9 +26,9 @@ class ConfigManager {
   // 用户配置注册信息
   private userConfigRegistration: IUserConfigRegistration;
 
-  constructor(config: IConfig, userConfig: IConfig) {
+  constructor(config: IConfig) {
     this.config = config;
-    this.userConfig = userConfig;
+    this.userConfig = {};
     this.userConfigRegistration = {};
   }
 
@@ -62,12 +63,29 @@ class ConfigManager {
   }
 
   /**
-   * 执行用户配置
+   * 获取用户配置
+   *
+   * @private
+   * @return {*}
+   * @memberof ConfigManager
+   */
+  private getUserConfig() {
+    const rootDir = process.cwd();
+    try {
+      this.userConfig = require(path.resolve(rootDir, './build.json'));
+    } catch (error) {
+      console.log('Config error: build.json is not exist.');
+      return;
+    }
+  }
+
+  /**
+   * 执行注册用户配置
    *
    * @param {*} configs
    * @memberof ConfigManager
    */
-  async runUserConfig() {
+  private async runUserConfig() {
     for (const configInfoKey in this.userConfig) {
       const configInfo = this.userConfigRegistration[configInfoKey];
 
@@ -100,7 +118,11 @@ class ConfigManager {
   /**
    * webpack 配置初始化
    */
-  async setup() {
+  public async setup() {
+    // 获取用户配置
+    this.getUserConfig();
+
+    // 用户配置校验及合并
     await this.runUserConfig();
   }
 }

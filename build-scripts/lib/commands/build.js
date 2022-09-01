@@ -14,17 +14,8 @@ const build_1 = require("../configs/build");
 const ConfigManager_1 = require("../core/ConfigManager");
 module.exports = () => __awaiter(void 0, void 0, void 0, function* () {
     const rootDir = process.cwd();
-    // 获取用户配置
-    let userConfig = {};
-    try {
-        userConfig = require(path.resolve(rootDir, './build.json'));
-    }
-    catch (error) {
-        console.log('Config error: build.json is not exist.');
-        return;
-    }
     // 初始化配置管理类
-    const manager = new ConfigManager_1.default(build_1.default, userConfig);
+    const manager = new ConfigManager_1.default(build_1.default);
     // 注册用户配置
     manager.registerUserConfig([
         {

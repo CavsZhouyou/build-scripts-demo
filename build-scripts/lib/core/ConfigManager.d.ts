@@ -11,7 +11,7 @@ declare class ConfigManager {
     config: IConfig;
     userConfig: IConfig;
     private userConfigRegistration;
-    constructor(config: IConfig, userConfig: IConfig);
+    constructor(config: IConfig);
     /**
      * 注册用户配置
      *
@@ -20,12 +20,20 @@ declare class ConfigManager {
      */
     registerUserConfig(configs: IUserConfigArgs[]): void;
     /**
-     * 执行用户配置
+     * 获取用户配置
+     *
+     * @private
+     * @return {*}
+     * @memberof ConfigManager
+     */
+    private getUserConfig;
+    /**
+     * 执行注册用户配置
      *
      * @param {*} configs
      * @memberof ConfigManager
      */
-    runUserConfig(): Promise<void>;
+    private runUserConfig;
     /**
      * webpack 配置初始化
      */

@@ -7,17 +7,8 @@ import ConfigManager from '../core/ConfigManager';
 export = async () => {
   const rootDir = process.cwd();
 
-  // 获取用户配置
-  let userConfig: { [name: string]: any } = {};
-  try {
-    userConfig = require(path.resolve(rootDir, './build.json'));
-  } catch (error) {
-    console.log('Config error: build.json is not exist.');
-    return;
-  }
-
   // 初始化配置管理类
-  const manager = new ConfigManager(defaultConfig, userConfig);
+  const manager = new ConfigManager(defaultConfig);
 
   // 注册用户配置
   manager.registerUserConfig([

@@ -10,11 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
+const path = require("path");
 const assert = require("assert");
 class ConfigManager {
-    constructor(config, userConfig) {
+    constructor(config) {
         this.config = config;
-        this.userConfig = userConfig;
+        this.userConfig = {};
         this.userConfigRegistration = {};
     }
     /**
@@ -40,7 +41,24 @@ class ConfigManager {
         });
     }
     /**
-     * 执行用户配置
+     * 获取用户配置
+     *
+     * @private
+     * @return {*}
+     * @memberof ConfigManager
+     */
+    getUserConfig() {
+        const rootDir = process.cwd();
+        try {
+            this.userConfig = require(path.resolve(rootDir, './build.json'));
+        }
+        catch (error) {
+            console.log('Config error: build.json is not exist.');
+            return;
+        }
+    }
+    /**
+     * 执行注册用户配置
      *
      * @param {*} configs
      * @memberof ConfigManager
@@ -72,6 +90,9 @@ class ConfigManager {
      */
     setup() {
         return __awaiter(this, void 0, void 0, function* () {
+            // 获取用户配置
+            this.getUserConfig();
+            // 用户配置校验及合并
             yield this.runUserConfig();
         });
     }

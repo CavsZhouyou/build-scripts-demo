@@ -10,32 +10,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const path = require("path");
 const webpack = require("webpack");
+const build_1 = require("../configs/build");
+const ConfigManager_1 = require("../core/ConfigManager");
 module.exports = () => __awaiter(void 0, void 0, void 0, function* () {
     const rootDir = process.cwd();
-    // 获取用户自定义配置
-    const userConfig = require(path.resolve(rootDir, './build.json'));
-    // 定义 webpack 配置
-    const config = {
-        entry: path.resolve(rootDir, userConfig.entry),
-        module: {
-            rules: [
-                {
-                    test: /\.ts?$/,
-                    use: require.resolve('ts-loader'),
-                    exclude: /node_modules/,
-                },
-            ],
+    // 获取用户配置
+    let userConfig = {};
+    try {
+        userConfig = require(path.resolve(rootDir, './build.json'));
+    }
+    catch (error) {
+        console.log('Config error: build.json is not exist.');
+        return;
+    }
+    // 初始化配置管理类
+    const manager = new ConfigManager_1.default(build_1.default, userConfig);
+    // 注册用户配置
+    manager.registerUserConfig([
+        {
+            // entry 配置
+            name: 'entry',
+            // 配置值校验
+            validation: (value) => __awaiter(void 0, void 0, void 0, function* () {
+                return typeof value === 'string';
+            }),
+            // 配置值合并
+            configWebpack: (defaultConfig, value) => __awaiter(void 0, void 0, void 0, function* () {
+                defaultConfig.entry = path.resolve(rootDir, value);
+            }),
         },
-        resolve: {
-            extensions: ['.ts', '.js'],
+        {
+            // outputDir 配置
+            name: 'outputDir',
+            // 配置值校验
+            validation: (value) => __awaiter(void 0, void 0, void 0, function* () {
+                return typeof value === 'string';
+            }),
+            // 配置值合并
+            configWebpack: (defaultConfig, value) => __awaiter(void 0, void 0, void 0, function* () {
+                defaultConfig.output.path = path.resolve(rootDir, value);
+            }),
         },
-        output: {
-            filename: 'main.js',
-            path: path.resolve(rootDir, './dist'),
-        },
-    };
+    ]);
+    // webpack 配置初始化
+    yield manager.setup();
     // 实例化 webpack
-    const compiler = webpack(config);
+    const compiler = webpack(manager.config);
     // 执行 webpack 编译
     compiler.run((err, stats) => {
         compiler.close((closeErr) => { });

@@ -1,8 +1,8 @@
 const path = require('path');
 const rootDir = process.cwd();
 
-export default {
-  entry: path.resolve(rootDir, './src/index.ts'),
+const buildConfig = {
+  entry: path.resolve(rootDir, './src/index'),
   module: {
     rules: [
       {
@@ -20,3 +20,5 @@ export default {
     path: path.resolve(rootDir, './dist'),
   },
 };
+
+export default buildConfig;

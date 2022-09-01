@@ -1,3 +1,4 @@
 {
-  "entry": "./src/index1"
+  "entry": "./src/index1",
+  "outputDir": "./build"
 }

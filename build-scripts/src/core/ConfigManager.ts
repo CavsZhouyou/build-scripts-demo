@@ -1,29 +1,50 @@
-const _ = require('lodash');
+import _ = require('lodash');
+import assert = require('assert');
+
+// 配置类型定义
+interface IConfig {
+  [key: string]: any;
+}
+
+// 用户配置注册信息类型定义
+interface IUserConfigRegistration {
+  [key: string]: IUserConfigArgs;
+}
+interface IUserConfigArgs {
+  name: string;
+  defaultValue?: any;
+  validation?: (value: any) => Promise<boolean>;
+  configWebpack?: (defaultConfig: IConfig, value: any) => void;
+}
 
 class ConfigManager {
-  constructor(config, userConfig) {
-    // webpack 配置
+  // webpack 配置
+  public config: IConfig;
+  // 用户配置
+  public userConfig: IConfig;
+  // 用户配置注册信息
+  private userConfigRegistration: IUserConfigRegistration;
+
+  constructor(config: IConfig, userConfig: IConfig) {
     this.config = config;
-    // 用户配置
     this.userConfig = userConfig;
-    // 用户配置的注册信息
     this.userConfigRegistration = {};
   }
 
   /**
    * 注册用户配置
    *
-   * @param {*} configs
+   * @param {IUserConfigArgs[]} configs
    * @memberof ConfigManager
    */
-  registerUserConfig(configs) {
+  public registerUserConfig(configs: IUserConfigArgs[]) {
     configs.forEach((conf) => {
       const configName = conf.name;
 
       // 判断配置属性是否已注册
       if (this.userConfigRegistration[configName]) {
         throw new Error(
-          `${configName} already registered in userConfigRegistration.`
+          `[Config File]: ${configName} already registered in userConfigRegistration.`
         );
       }
 
@@ -53,7 +74,7 @@ class ConfigManager {
       // 配置属性未注册
       if (!configInfo) {
         throw new Error(
-          `[Config File] Config key '${configInfoKey}' is not supported.`
+          `[Config File]: Config key '${configInfoKey}' is not supported.`
         );
       }
 
@@ -62,10 +83,10 @@ class ConfigManager {
 
       // 配置值校验
       if (validation) {
-        validationInfo = await validation(configValue);
+        const validationResult = await validation(configValue);
         assert(
-          validationInfo,
-          `${name} did not pass validation, result: ${validationInfo}`
+          validationResult,
+          `${name} did not pass validation, result: ${validationResult}`
         );
       }
 

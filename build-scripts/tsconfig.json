@@ -12,7 +12,7 @@
     "target": "es6",
     "experimentalDecorators": true,
     "skipLibCheck": true,
-    "declaration": true,
+    "declaration": false,
     "lib": ["dom", "es5", "es6", "es7", "scripthost", "es2018.promise"],
     "emitDecoratorMetadata": true,
     "preserveConstEnums": true,

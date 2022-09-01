@@ -1,7 +1,7 @@
-const path = require('path');
-const webpack = require('webpack');
+import * as path from 'path';
+import * as webpack from 'webpack';
 
-module.exports = async () => {
+export = async () => {
   const rootDir = process.cwd();
 
   // 获取用户自定义配置
@@ -33,7 +33,6 @@ module.exports = async () => {
 
   // 执行 webpack 编译
   compiler.run((err, stats) => {
-    console.log(stats?.toString());
     compiler.close((closeErr) => {});
   });
 };

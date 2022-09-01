@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const program = require('commander');
-const build = require('../src/commands/build');
+const build = require('../lib/build');
 
 (async () => {
   // 命令注册

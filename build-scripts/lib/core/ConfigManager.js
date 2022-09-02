@@ -66,6 +66,8 @@ class ConfigManager {
     runUserConfig() {
         return __awaiter(this, void 0, void 0, function* () {
             for (const configInfoKey in this.userConfig) {
+                if (configInfoKey === 'plugins')
+                    return;
                 const configInfo = this.userConfigRegistration[configInfoKey];
                 // 配置属性未注册
                 if (!configInfo) {
@@ -86,6 +88,21 @@ class ConfigManager {
         });
     }
     /**
+     * 执行插件
+     *
+     * @private
+     * @memberof ConfigManager
+     */
+    runPlugins() {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const plugin of this.userConfig.plugins) {
+                const pluginPath = require.resolve(plugin, { paths: [process.cwd()] });
+                const pluginFn = require(pluginPath);
+                yield pluginFn(this.config);
+            }
+        });
+    }
+    /**
      * webpack 配置初始化
      */
     setup() {
@@ -94,6 +111,8 @@ class ConfigManager {
             this.getUserConfig();
             // 用户配置校验及合并
             yield this.runUserConfig();
+            // 执行插件
+            yield this.runPlugins();
         });
     }
 }

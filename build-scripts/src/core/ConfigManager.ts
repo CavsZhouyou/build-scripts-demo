@@ -87,6 +87,7 @@ class ConfigManager {
    */
   private async runUserConfig() {
     for (const configInfoKey in this.userConfig) {
+      if (configInfoKey === 'plugins') return;
       const configInfo = this.userConfigRegistration[configInfoKey];
 
       // 配置属性未注册
@@ -116,6 +117,20 @@ class ConfigManager {
   }
 
   /**
+   * 执行插件
+   *
+   * @private
+   * @memberof ConfigManager
+   */
+  private async runPlugins() {
+    for (const plugin of this.userConfig.plugins) {
+      const pluginPath = require.resolve(plugin, { paths: [process.cwd()] });
+      const pluginFn = require(pluginPath);
+      await pluginFn(this.config);
+    }
+  }
+
+  /**
    * webpack 配置初始化
    */
   public async setup() {
@@ -124,6 +139,9 @@ class ConfigManager {
 
     // 用户配置校验及合并
     await this.runUserConfig();
+
+    // 执行插件
+    await this.runPlugins();
   }
 }
 

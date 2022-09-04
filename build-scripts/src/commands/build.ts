@@ -21,7 +21,8 @@ export = async () => {
       },
       // 配置值合并
       configWebpack: async (defaultConfig, value) => {
-        defaultConfig.entry = path.resolve(rootDir, value);
+        // defaultConfig.entry = path.resolve(rootDir, value);
+        defaultConfig.entry('index').clear().add(path.resolve(rootDir, value));
       },
     },
     {
@@ -33,7 +34,8 @@ export = async () => {
       },
       // 配置值合并
       configWebpack: async (defaultConfig, value) => {
-        defaultConfig.output.path = path.resolve(rootDir, value);
+        // defaultConfig.output.path = path.resolve(rootDir, value);
+        defaultConfig.output.path(path.resolve(rootDir, value));
       },
     },
   ]);
@@ -42,7 +44,7 @@ export = async () => {
   await manager.setup();
 
   // 实例化 webpack
-  const compiler = webpack(manager.config);
+  const compiler = webpack(manager.config.toConfig());
 
   // 执行 webpack 编译
   compiler.run((err, stats) => {

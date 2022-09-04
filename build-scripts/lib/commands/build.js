@@ -27,7 +27,8 @@ module.exports = () => __awaiter(void 0, void 0, void 0, function* () {
             }),
             // 配置值合并
             configWebpack: (defaultConfig, value) => __awaiter(void 0, void 0, void 0, function* () {
-                defaultConfig.entry = path.resolve(rootDir, value);
+                // defaultConfig.entry = path.resolve(rootDir, value);
+                defaultConfig.entry('index').clear().add(path.resolve(rootDir, value));
             }),
         },
         {
@@ -39,14 +40,15 @@ module.exports = () => __awaiter(void 0, void 0, void 0, function* () {
             }),
             // 配置值合并
             configWebpack: (defaultConfig, value) => __awaiter(void 0, void 0, void 0, function* () {
-                defaultConfig.output.path = path.resolve(rootDir, value);
+                // defaultConfig.output.path = path.resolve(rootDir, value);
+                defaultConfig.output.path(path.resolve(rootDir, value));
             }),
         },
     ]);
     // webpack 配置初始化
     yield manager.setup();
     // 实例化 webpack
-    const compiler = webpack(manager.config);
+    const compiler = webpack(manager.config.toConfig());
     // 执行 webpack 编译
     compiler.run((err, stats) => {
         compiler.close((closeErr) => { });

@@ -1,24 +1,21 @@
+import * as Config from 'webpack-chain';
+
 const path = require('path');
 const rootDir = process.cwd();
 
-const buildConfig = {
-  entry: path.resolve(rootDir, './src/index'),
-  module: {
-    rules: [
-      {
-        test: /\.ts?$/,
-        use: require.resolve('ts-loader'),
-        exclude: /node_modules/,
-      },
-    ],
-  },
-  resolve: {
-    extensions: ['.ts', '.js'],
-  },
-  output: {
-    filename: 'main.js',
-    path: path.resolve(rootDir, './dist'),
-  },
-};
+const buildConfig = new Config();
+
+buildConfig.entry('index').add('./src/index');
+
+buildConfig.module
+  .rule('ts')
+  .test(/\.ts?$/)
+  .use('ts-loader')
+  .loader(require.resolve('ts-loader'));
+
+buildConfig.resolve.extensions.add('.ts').add('.js');
+
+buildConfig.output.filename('main.js');
+buildConfig.output.path(path.resolve(rootDir, './dist'));
 
 export default buildConfig;

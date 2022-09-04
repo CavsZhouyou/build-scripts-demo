@@ -1,7 +1,7 @@
-module.exports = async (webpack) => {
-  // 添加 xml loader
-  webpack.module.rules.push({
-    test: /\.xml$/i,
-    use: require.resolve('xml-loader'),
-  });
+module.exports = async (webpackConfig) => {
+  webpackConfig.module
+    .rule('xml')
+    .test(/\.xml$/i)
+    .use('xml-loader')
+    .loader(require.resolve('xml-loader'));
 };

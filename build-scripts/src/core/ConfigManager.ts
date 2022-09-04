@@ -1,6 +1,7 @@
 import _ = require('lodash');
 import path = require('path');
 import assert = require('assert');
+import WebpackChain = require('webpack-chain');
 
 // 配置类型定义
 interface IConfig {
@@ -15,18 +16,18 @@ interface IUserConfigArgs {
   name: string;
   defaultValue?: any;
   validation?: (value: any) => Promise<boolean>;
-  configWebpack?: (defaultConfig: IConfig, value: any) => void;
+  configWebpack?: (defaultConfig: WebpackChain, value: any) => void;
 }
 
 class ConfigManager {
   // webpack 配置
-  public config: IConfig;
+  public config: WebpackChain;
   // 用户配置
   public userConfig: IConfig;
   // 用户配置注册信息
   private userConfigRegistration: IUserConfigRegistration;
 
-  constructor(config: IConfig) {
+  constructor(config: WebpackChain) {
     this.config = config;
     this.userConfig = {};
     this.userConfigRegistration = {};

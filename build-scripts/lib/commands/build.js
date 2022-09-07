@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const webpack = require("webpack");
 const ConfigManager_1 = require("../core/ConfigManager");
 module.exports = () => __awaiter(void 0, void 0, void 0, function* () {
-    const rootDir = process.cwd();
     // 初始化配置管理类
     const manager = new ConfigManager_1.default();
     // webpack 配置初始化

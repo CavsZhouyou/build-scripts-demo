@@ -1,11 +1,8 @@
-import * as path from 'path';
 import * as webpack from 'webpack';
 
 import ConfigManager from '../core/ConfigManager';
 
 export = async () => {
-  const rootDir = process.cwd();
-
   // 初始化配置管理类
   const manager = new ConfigManager();
 

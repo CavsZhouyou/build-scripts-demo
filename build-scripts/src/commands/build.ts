@@ -10,7 +10,9 @@ export = async () => {
   await manager.setup();
 
   // 实例化 webpack
-  const compiler = webpack(manager.config.toConfig());
+  const compiler = webpack(
+    manager.configArr.map((config) => config.chainConfig.toConfig())
+  );
 
   // 执行 webpack 编译
   compiler.run((err, stats) => {

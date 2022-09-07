@@ -3,7 +3,7 @@ const Config = require('webpack-chain');
 const path = require('path');
 const rootDir = process.cwd();
 
-module.exports = async ({ setConfig, registerUserConfig }) => {
+module.exports = async ({ registerTask, registerUserConfig }) => {
   /**
    * 设置默认配置
    */
@@ -22,7 +22,7 @@ module.exports = async ({ setConfig, registerUserConfig }) => {
   buildConfig.output.filename('main.js');
   buildConfig.output.path(path.resolve(rootDir, './dist'));
 
-  setConfig(buildConfig);
+  registerTask('base', buildConfig);
 
   /**
    * 注册用户配置

@@ -15,22 +15,40 @@ const assert = require("assert");
 class ConfigManager {
     constructor() {
         /**
-         * 设置 webpack 配置
+         * 注册 webpack 任务
          *
-         * @param {WebpackChain} config
+         * @param {string} name
+         * @param {WebpackChain} chainConfig
          * @memberof ConfigManager
          */
-        this.setConfig = (config) => {
-            this.config = config;
+        this.registerTask = (name, chainConfig) => {
+            const exist = this.configArr.find((v) => v.name === name);
+            if (!exist) {
+                this.configArr.push({
+                    name,
+                    chainConfig,
+                    modifyFunctions: [],
+                });
+            }
+            else {
+                throw new Error(`[Error] config '${name}' already exists!`);
+            }
         };
         /**
          * 注册 webpack 配置修改函数
          *
+         * @param {string} name
          * @param {(defaultConfig: WebpackChain) => void} fn
          * @memberof ConfigManager
          */
-        this.onGetWebpackConfig = (fn) => {
-            this.modifyConfigFns.push(fn);
+        this.onGetWebpackConfig = (name, fn) => {
+            const config = this.configArr.find((v) => v.name === name);
+            if (config) {
+                config.modifyFunctions.push(fn);
+            }
+            else {
+                throw new Error(`[Error] config '${name}' does not exist!`);
+            }
         };
         /**
          * 注册用户配置
@@ -67,7 +85,6 @@ class ConfigManager {
                 this.userConfig = require(path.resolve(rootDir, './build.json'));
             }
             catch (error) {
-                console.log('Config error: build.json is not exist.');
                 return;
             }
         };
@@ -95,7 +112,10 @@ class ConfigManager {
                 }
                 // 配置值更新到默认 webpack 配置
                 if (configInfo.configWebpack) {
-                    yield configInfo.configWebpack(this.config, configValue);
+                    // 遍历已注册的 webapck 任务
+                    for (const webpackConfigInfo of this.configArr) {
+                        yield configInfo.configWebpack(webpackConfigInfo.chainConfig, configValue);
+                    }
                 }
             }
         });
@@ -110,7 +130,7 @@ class ConfigManager {
                 const pluginPath = require.resolve(plugin, { paths: [process.cwd()] });
                 const pluginFn = require(pluginPath);
                 yield pluginFn({
-                    setConfig: this.setConfig,
+                    registerTask: this.registerTask,
                     registerUserConfig: this.registerUserConfig,
                     onGetWebpackConfig: this.onGetWebpackConfig,
                 });
@@ -123,7 +143,9 @@ class ConfigManager {
          * @memberof ConfigManager
          */
         this.runWebpackModifyFns = () => __awaiter(this, void 0, void 0, function* () {
-            this.modifyConfigFns.forEach((fn) => fn(this.config));
+            for (const webpackConfigInfo of this.configArr) {
+                webpackConfigInfo.modifyFunctions.forEach((fn) => fn(webpackConfigInfo.chainConfig));
+            }
         });
         /**
          * webpack 配置初始化
@@ -138,9 +160,9 @@ class ConfigManager {
             // 执行 webpack 配置修改函数
             yield this.runWebpackModifyFns();
         });
+        this.configArr = [];
         this.userConfig = {};
         this.userConfigRegistration = {};
-        this.modifyConfigFns = [];
     }
 }
 exports.default = ConfigManager;

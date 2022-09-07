@@ -22,40 +22,65 @@ interface IUserConfigArgs {
 // webpack 配置修改函数类型定义
 type IModifyConfigFn = (defaultConfig: WebpackChain) => void;
 
+// webpack 任务配置定义
+export interface ITaskConfig {
+  name: string;
+  chainConfig: WebpackChain;
+  modifyFunctions: IModifyConfigFn[];
+}
+
 class ConfigManager {
-  // webpack 配置
-  public config: WebpackChain;
+  // webpack 配置列表
+  public configArr: ITaskConfig[];
   // 用户配置
   public userConfig: IConfig;
   // 用户配置注册信息
   private userConfigRegistration: IUserConfigRegistration;
-  // 已注册的 webpack 配置修改函数
-  private modifyConfigFns: IModifyConfigFn[];
 
   constructor() {
+    this.configArr = [];
     this.userConfig = {};
     this.userConfigRegistration = {};
-    this.modifyConfigFns = [];
   }
 
   /**
-   * 设置 webpack 配置
+   * 注册 webpack 任务
    *
-   * @param {WebpackChain} config
+   * @param {string} name
+   * @param {WebpackChain} chainConfig
    * @memberof ConfigManager
    */
-  public setConfig = (config: WebpackChain) => {
-    this.config = config;
+  public registerTask = (name: string, chainConfig: WebpackChain) => {
+    const exist = this.configArr.find((v): boolean => v.name === name);
+    if (!exist) {
+      this.configArr.push({
+        name,
+        chainConfig,
+        modifyFunctions: [],
+      });
+    } else {
+      throw new Error(`[Error] config '${name}' already exists!`);
+    }
   };
 
   /**
    * 注册 webpack 配置修改函数
    *
+   * @param {string} name
    * @param {(defaultConfig: WebpackChain) => void} fn
    * @memberof ConfigManager
    */
-  public onGetWebpackConfig = (fn: (defaultConfig: WebpackChain) => void) => {
-    this.modifyConfigFns.push(fn);
+  public onGetWebpackConfig = (
+    name: string,
+    fn: (defaultConfig: WebpackChain) => void
+  ) => {
+    const config = this.configArr.find((v): boolean => v.name === name);
+
+    if (config) {
+      config.modifyFunctions.push(fn);
+    } else {
+      throw new Error(`[Error] config '${name}' does not exist!`);
+    }
   };
 
   /**
@@ -100,7 +125,6 @@ class ConfigManager {
     try {
       this.userConfig = require(path.resolve(rootDir, './build.json'));
     } catch (error) {
-      console.log('Config error: build.json is not exist.');
       return;
     }
   };
@@ -137,7 +161,13 @@ class ConfigManager {
 
       // 配置值更新到默认 webpack 配置
       if (configInfo.configWebpack) {
-        await configInfo.configWebpack(this.config, configValue);
+        // 遍历已注册的 webapck 任务
+        for (const webpackConfigInfo of this.configArr) {
+          await configInfo.configWebpack(
+            webpackConfigInfo.chainConfig,
+            configValue
+          );
+        }
       }
     }
   };
@@ -153,7 +183,7 @@ class ConfigManager {
       const pluginPath = require.resolve(plugin, { paths: [process.cwd()] });
       const pluginFn = require(pluginPath);
       await pluginFn({
-        setConfig: this.setConfig,
+        registerTask: this.registerTask,
         registerUserConfig: this.registerUserConfig,
         onGetWebpackConfig: this.onGetWebpackConfig,
       });
@@ -167,7 +197,11 @@ class ConfigManager {
    * @memberof ConfigManager
    */
   private runWebpackModifyFns = async () => {
-    this.modifyConfigFns.forEach((fn) => fn(this.config));
+    for (const webpackConfigInfo of this.configArr) {
+      webpackConfigInfo.modifyFunctions.forEach((fn) =>
+        fn(webpackConfigInfo.chainConfig)
+      );
+    }
   };
 
   /**

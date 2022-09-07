@@ -12,6 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.7.14",
+    "build-plugin-base": "file:../build-plugin-base",
     "build-plugin-xml": "file:../build-plugin-xml",
     "typescript": "^4.8.2"
   }

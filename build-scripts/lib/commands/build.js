@@ -8,43 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const path = require("path");
 const webpack = require("webpack");
-const build_1 = require("../configs/build");
 const ConfigManager_1 = require("../core/ConfigManager");
 module.exports = () => __awaiter(void 0, void 0, void 0, function* () {
     const rootDir = process.cwd();
     // 初始化配置管理类
-    const manager = new ConfigManager_1.default(build_1.default);
-    // 注册用户配置
-    manager.registerUserConfig([
-        {
-            // entry 配置
-            name: 'entry',
-            // 配置值校验
-            validation: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                return typeof value === 'string';
-            }),
-            // 配置值合并
-            configWebpack: (defaultConfig, value) => __awaiter(void 0, void 0, void 0, function* () {
-                // defaultConfig.entry = path.resolve(rootDir, value);
-                defaultConfig.entry('index').clear().add(path.resolve(rootDir, value));
-            }),
-        },
-        {
-            // outputDir 配置
-            name: 'outputDir',
-            // 配置值校验
-            validation: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                return typeof value === 'string';
-            }),
-            // 配置值合并
-            configWebpack: (defaultConfig, value) => __awaiter(void 0, void 0, void 0, function* () {
-                // defaultConfig.output.path = path.resolve(rootDir, value);
-                defaultConfig.output.path(path.resolve(rootDir, value));
-            }),
-        },
-    ]);
+    const manager = new ConfigManager_1.default();
     // webpack 配置初始化
     yield manager.setup();
     // 实例化 webpack

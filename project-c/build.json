@@ -1,5 +1,5 @@
 {
   "entry": "./src/index1",
   "outputDir": "./build",
-  "plugins": ["build-plugin-xml"]
+  "plugins": ["build-plugin-base", "build-plugin-xml"]
 }

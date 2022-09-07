@@ -19,6 +19,9 @@ interface IUserConfigArgs {
   configWebpack?: (defaultConfig: WebpackChain, value: any) => void;
 }
 
+// webpack 配置修改函数类型定义
+type IModifyConfigFn = (defaultConfig: WebpackChain) => void;
+
 class ConfigManager {
   // webpack 配置
   public config: WebpackChain;
@@ -26,12 +29,34 @@ class ConfigManager {
   public userConfig: IConfig;
   // 用户配置注册信息
   private userConfigRegistration: IUserConfigRegistration;
+  // 已注册的 webpack 配置修改函数
+  private modifyConfigFns: IModifyConfigFn[];
 
-  constructor(config: WebpackChain) {
-    this.config = config;
+  constructor() {
     this.userConfig = {};
     this.userConfigRegistration = {};
+    this.modifyConfigFns = [];
   }
+
+  /**
+   * 设置 webpack 配置
+   *
+   * @param {WebpackChain} config
+   * @memberof ConfigManager
+   */
+  public setConfig = (config: WebpackChain) => {
+    this.config = config;
+  };
+
+  /**
+   * 注册 webpack 配置修改函数
+   *
+   * @param {(defaultConfig: WebpackChain) => void} fn
+   * @memberof ConfigManager
+   */
+  public onGetWebpackConfig = (fn: (defaultConfig: WebpackChain) => void) => {
+    this.modifyConfigFns.push(fn);
+  };
 
   /**
    * 注册用户配置
@@ -39,7 +64,7 @@ class ConfigManager {
    * @param {IUserConfigArgs[]} configs
    * @memberof ConfigManager
    */
-  public registerUserConfig(configs: IUserConfigArgs[]) {
+  public registerUserConfig = (configs: IUserConfigArgs[]) => {
     configs.forEach((conf) => {
       const configName = conf.name;
 
@@ -61,7 +86,7 @@ class ConfigManager {
         this.userConfig[configName] = conf.defaultValue;
       }
     });
-  }
+  };
 
   /**
    * 获取用户配置
@@ -70,7 +95,7 @@ class ConfigManager {
    * @return {*}
    * @memberof ConfigManager
    */
-  private getUserConfig() {
+  private getUserConfig = () => {
     const rootDir = process.cwd();
     try {
       this.userConfig = require(path.resolve(rootDir, './build.json'));
@@ -78,7 +103,7 @@ class ConfigManager {
       console.log('Config error: build.json is not exist.');
       return;
     }
-  }
+  };
 
   /**
    * 执行注册用户配置
@@ -86,7 +111,7 @@ class ConfigManager {
    * @param {*} configs
    * @memberof ConfigManager
    */
-  private async runUserConfig() {
+  private runUserConfig = async () => {
     for (const configInfoKey in this.userConfig) {
       if (configInfoKey === 'plugins') return;
       const configInfo = this.userConfigRegistration[configInfoKey];
@@ -115,7 +140,7 @@ class ConfigManager {
         await configInfo.configWebpack(this.config, configValue);
       }
     }
-  }
+  };
 
   /**
    * 执行插件
@@ -123,27 +148,44 @@ class ConfigManager {
    * @private
    * @memberof ConfigManager
    */
-  private async runPlugins() {
+  private runPlugins = async () => {
     for (const plugin of this.userConfig.plugins) {
       const pluginPath = require.resolve(plugin, { paths: [process.cwd()] });
       const pluginFn = require(pluginPath);
-      await pluginFn(this.config);
+      await pluginFn({
+        setConfig: this.setConfig,
+        registerUserConfig: this.registerUserConfig,
+        onGetWebpackConfig: this.onGetWebpackConfig,
+      });
     }
-  }
+  };
+
+  /**
+   * 执行 webpack 配置修改函数
+   *
+   * @private
+   * @memberof ConfigManager
+   */
+  private runWebpackModifyFns = async () => {
+    this.modifyConfigFns.forEach((fn) => fn(this.config));
+  };
 
   /**
    * webpack 配置初始化
    */
-  public async setup() {
+  public setup = async () => {
     // 获取用户配置
     this.getUserConfig();
+
+    // 执行插件
+    await this.runPlugins();
 
     // 用户配置校验及合并
     await this.runUserConfig();
 
-    // 执行插件
-    await this.runPlugins();
-  }
+    // 执行 webpack 配置修改函数
+    await this.runWebpackModifyFns();
+  };
 }
 
 export default ConfigManager;

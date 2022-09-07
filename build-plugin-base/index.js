@@ -5,7 +5,7 @@ const rootDir = process.cwd();
 
 module.exports = async ({ registerTask, registerUserConfig }) => {
   /**
-   * 设置默认配置
+   * 注册任务配置
    */
   const buildConfig = new Config();
 

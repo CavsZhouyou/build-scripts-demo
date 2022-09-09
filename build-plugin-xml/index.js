@@ -1,5 +1,5 @@
 module.exports = async ({ onGetWebpackConfig }) => {
-  onGetWebpackConfig((webpackConfig) => {
+  onGetWebpackConfig('base', (webpackConfig) => {
     webpackConfig.module
       .rule('xml')
       .before('ts')
